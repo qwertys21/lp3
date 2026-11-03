@@ -1,0 +1,75 @@
+UBER
+
+
+import pandas as pd
+
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+
+# Step 1: Load the dataset
+df = pd.read_csv("uber.csv")
+
+print("Dataset:")
+print(df.head())
+
+# Step 2: Remove missing and invalid records
+df = df.dropna()
+
+df = df[
+    (df["fare_amount"] > 0) &
+    (df["pickup_longitude"].between(-75, -72)) &
+    (df["dropoff_longitude"].between(-75, -72)) &
+    (df["pickup_latitude"].between(40, 42)) &
+    (df["dropoff_latitude"].between(40, 42)) &
+    (df["passenger_count"].between(1, 6))
+]
+
+# Step 3: Select input features and target
+X = df[[
+    "pickup_longitude",
+    "pickup_latitude",
+    "dropoff_longitude",
+    "dropoff_latitude",
+    "passenger_count"
+]]
+
+y = df["fare_amount"]
+
+# Step 4: Split the dataset
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+# Step 5: Linear Regression
+lr_model = LinearRegression()
+
+lr_model.fit(X_train, y_train)
+
+lr_pred = lr_model.predict(X_test)
+
+print("\nLinear Regression Results")
+print("MAE:", mean_absolute_error(y_test, lr_pred))
+print("RMSE:", mean_squared_error(y_test, lr_pred) ** 0.5)
+print("R2 Score:", r2_score(y_test, lr_pred))
+
+# Step 6: Random Forest Regression
+rf_model = RandomForestRegressor(
+    n_estimators=50,
+    max_depth=15,
+    random_state=42,
+    n_jobs=-1
+)
+
+rf_model.fit(X_train, y_train)
+
+rf_pred = rf_model.predict(X_test)
+
+print("\nRandom Forest Regression Results")
+print("MAE:", mean_absolute_error(y_test, rf_pred))
+print("RMSE:", mean_squared_error(y_test, rf_pred) ** 0.5)
+print("R2 Score:", r2_score(y_test, rf_pred))
+
+
+

@@ -1,0 +1,57 @@
+HUFFMAN
+
+
+import heapq
+from collections import Counter
+
+def huffman(text):
+    freq = Counter(text)
+    heap = []
+    count = 0
+
+    # Create Min Heap
+    for ch, f in freq.items():
+        heapq.heappush(heap, (f, count, (ch, None, None)))
+        count += 1
+
+    # Build Huffman Tree
+    while len(heap) > 1:
+        f1, _, left = heapq.heappop(heap)
+        f2, _, right = heapq.heappop(heap)
+
+        new_node = (None, left, right)
+
+        heapq.heappush(heap, (f1 + f2, count, new_node))
+        count += 1
+
+    # Generate Huffman Codes
+    codes = {}
+
+    def generate(node, code):
+        ch, left, right = node
+
+        if ch is not None:
+            codes[ch] = code if code else "0"
+            return
+
+        generate(left, code + "0")
+        generate(right, code + "1")
+
+    if heap:
+        root = heap[0][2]
+        generate(root, "")
+
+        print("Character  Frequency  Huffman Code")
+
+        for ch, f in freq.items():
+            print(f"{ch:^9} {f:^9} {codes[ch]}")
+
+        encoded = ""
+        for ch in text:
+            encoded += codes[ch]
+
+        print("Encoded Message:", encoded)
+
+
+text = input("Enter the msg: ")
+huffman(text)
